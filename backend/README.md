@@ -6,6 +6,8 @@ Este backend Flask maneja los webhooks de tool calls de Tavus AI, permitiendo qu
 
 - **Webhook Handler**: Recibe y procesa tool calls de Tavus
 - **Tool Schedule Meeting**: Envía emails con enlaces de reunión de HubSpot
+- **Integración HubSpot CRM**: Guarda prospectos directamente en HubSpot
+- **Formulario de Prospectos**: API para crear y actualizar contactos
 - **Configuración flexible**: Variables de entorno para personalización
 - **Logging**: Sistema de logs para debugging
 - **Health Check**: Endpoint para verificar el estado del servidor
@@ -35,26 +37,30 @@ python run.py
 | Variable | Descripción | Valor por defecto |
 |----------|-------------|-------------------|
 | `FLASK_ENV` | Modo de desarrollo | `development` |
-| `PORT` | Puerto del servidor | `5000` |
-| `SMTP_SERVER` | Servidor SMTP | `smtp.gmail.com` |
-| `SMTP_PORT` | Puerto SMTP | `587` |
-| `EMAIL_USER` | Usuario de email | - |
-| `EMAIL_PASSWORD` | Contraseña de email | - |
-| `FROM_EMAIL` | Email remitente | `EMAIL_USER` |
+| `PORT` | Puerto del servidor | `5003` |
+| `RESEND_API_KEY` | API Key de Resend | - |
+| `FROM_EMAIL` | Email remitente | - |
+| `HUBSPOT_API_KEY` | API Key de HubSpot | - |
+| `HUBSPOT_PORTAL_ID` | Portal ID de HubSpot | - |
 
-### Configuración de Gmail
+### Configuración de HubSpot
 
-Para usar Gmail como servidor SMTP:
+Para configurar la integración con HubSpot CRM, consulta el archivo [HUBSPOT_SETUP.md](HUBSPOT_SETUP.md) para instrucciones detalladas.
 
-1. Habilitar autenticación de 2 factores
-2. Generar una contraseña de aplicación
-3. Usar la contraseña de aplicación en `EMAIL_PASSWORD`
+### Configuración de Resend
+
+Para configurar el envío de emails con Resend:
+
+1. Crear una cuenta en [Resend](https://resend.com)
+2. Obtener tu API Key
+3. Configurar `RESEND_API_KEY` y `FROM_EMAIL`
 
 ## Uso
 
 ### Endpoints
 
 - `POST /webhook` - Recibe tool calls de Tavus
+- `POST /api/prospect` - Crea/actualiza prospectos en HubSpot
 - `GET /health` - Verifica el estado del servidor
 
 ### Tool Calls Soportadas
@@ -87,6 +93,54 @@ Programa una reunión enviando un email con el enlace de HubSpot.
   "status": "success",
   "result": "Email de programación de reunión enviado exitosamente a usuario@ejemplo.com"
 }
+```
+
+#### POST /api/prospect
+
+Crea o actualiza un prospecto en HubSpot CRM.
+
+**Parámetros:**
+```json
+{
+  "nombres": "string (requerido)",
+  "apellidos": "string (requerido)", 
+  "compania": "string (requerido)",
+  "emailCorporativo": "string (requerido)",
+  "rol": "string (requerido)",
+  "websiteUrl": "string (opcional)"
+}
+```
+
+**Respuesta exitosa:**
+```json
+{
+  "status": "success",
+  "message": "Prospecto creado exitosamente",
+  "hubspot_id": "123456789"
+}
+```
+
+**Respuesta de error:**
+```json
+{
+  "status": "error",
+  "message": "Error creando prospecto en HubSpot",
+  "error": "Descripción del error"
+}
+```
+
+**Ejemplo de uso:**
+```bash
+curl -X POST http://localhost:5003/api/prospect \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombres": "Juan",
+    "apellidos": "Pérez",
+    "compania": "Empresa S.A.",
+    "emailCorporativo": "juan@empresa.com",
+    "rol": "Gerente",
+    "websiteUrl": "https://www.empresa.com"
+  }'
 ```
 
 ## Integración con Tavus
