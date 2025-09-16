@@ -344,3 +344,6 @@ if __name__ == '__main__':
 # Para Vercel
 def handler(request):
     return app(request)
+
+# Exportar la app para Vercel
+app = app
