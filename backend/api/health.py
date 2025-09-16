@@ -2,13 +2,7 @@ def handler(request):
     return {
         "statusCode": 200,
         "headers": {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            "Content-Type": "application/json"
         },
-        "body": {
-            "status": "healthy",
-            "service": "tavus-webhook-handler"
-        }
+        "body": '{"status": "healthy", "service": "tavus-webhook-handler"}'
     }
