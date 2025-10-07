@@ -1,0 +1,47 @@
+{
+  "c18ad5caecb994e8": {
+    "conversation_id": "c18ad5caecb994e8",
+    "hubspot_id": "21085379",
+    "prospect_data": {
+      "nombres": "diego",
+      "apellidos": "bustamante",
+      "compania": "triario",
+      "websiteUrl": "www.triario.co",
+      "emailCorporativo": "diego.bustamante@triario.com",
+      "rol": "director",
+      "conversation_id": "c18ad5caecb994e8"
+    },
+    "created_at": "2025-10-06T11:40:13.448408",
+    "updated_at": "2025-10-06T11:40:13.448424"
+  },
+  "c6c886ea3bb22420": {
+    "conversation_id": "c6c886ea3bb22420",
+    "hubspot_id": "21085379",
+    "prospect_data": {
+      "nombres": "diego",
+      "apellidos": "bustamante",
+      "compania": "grupo bios",
+      "websiteUrl": "https://www.grupobios.co/",
+      "emailCorporativo": "diego.bustamante@triario.com",
+      "rol": "Director de marketing",
+      "conversation_id": "c6c886ea3bb22420"
+    },
+    "created_at": "2025-10-07T08:57:06.274459",
+    "updated_at": "2025-10-07T08:57:06.274601"
+  },
+  "ce29223fe4a234a4": {
+    "conversation_id": "ce29223fe4a234a4",
+    "hubspot_id": "21085379",
+    "prospect_data": {
+      "nombres": "diego",
+      "apellidos": "bustamante",
+      "compania": "triario",
+      "websiteUrl": "https://www.grupobios.co/",
+      "emailCorporativo": "diego.bustamante@triario.com",
+      "rol": "director",
+      "conversation_id": "ce29223fe4a234a4"
+    },
+    "created_at": "2025-10-07T09:16:14.061248",
+    "updated_at": "2025-10-07T09:16:14.061281"
+  }
+}

@@ -7,7 +7,9 @@ Este backend Flask maneja los webhooks de tool calls de Tavus AI, permitiendo qu
 - **Webhook Handler**: Recibe y procesa tool calls de Tavus
 - **Tool Schedule Meeting**: Envía emails con enlaces de reunión de HubSpot
 - **Integración HubSpot CRM**: Guarda prospectos directamente en HubSpot
+- **Enriquecimiento Apollo API**: Enriquece datos de empresa usando Apollo API
 - **Formulario de Prospectos**: API para crear y actualizar contactos
+- **Contexto Enriquecido**: Envía información detallada de empresa al agente
 - **Configuración flexible**: Variables de entorno para personalización
 - **Logging**: Sistema de logs para debugging
 - **Health Check**: Endpoint para verificar el estado del servidor
@@ -38,6 +40,7 @@ python run.py
 |----------|-------------|-------------------|
 | `FLASK_ENV` | Modo de desarrollo | `development` |
 | `PORT` | Puerto del servidor | `5003` |
+| `APOLLO_API_KEY` | API Key de Apollo | `ATpjar6DGtZOKVJWSTiGXQ` |
 | `RESEND_API_KEY` | API Key de Resend | - |
 | `FROM_EMAIL` | Email remitente | - |
 | `HUBSPOT_API_KEY` | API Key de HubSpot | - |
@@ -46,6 +49,17 @@ python run.py
 ### Configuración de HubSpot
 
 Para configurar la integración con HubSpot CRM, consulta el archivo [HUBSPOT_SETUP.md](HUBSPOT_SETUP.md) para instrucciones detalladas.
+
+### Configuración de Apollo API
+
+La integración con Apollo API está configurada por defecto con la API key proporcionada. Apollo se usa para enriquecer los datos de empresa con información detallada como:
+
+- Información básica de la empresa (descripción, industria, tamaño)
+- Datos financieros (ingresos, financiación)
+- Tecnologías utilizadas
+- Empleados clave
+- Ubicaciones
+- Redes sociales
 
 ### Configuración de Resend
 
@@ -60,7 +74,8 @@ Para configurar el envío de emails con Resend:
 ### Endpoints
 
 - `POST /webhook` - Recibe tool calls de Tavus
-- `POST /api/prospect` - Crea/actualiza prospectos en HubSpot
+- `POST /api/prospect` - Crea/actualiza prospectos en HubSpot con datos enriquecidos
+- `POST /api/enrich-context` - Enriquece contexto de empresa con Apollo API
 - `GET /health` - Verifica el estado del servidor
 
 ### Tool Calls Soportadas
@@ -141,6 +156,64 @@ curl -X POST http://localhost:5003/api/prospect \
     "rol": "Gerente",
     "websiteUrl": "https://www.empresa.com"
   }'
+```
+
+#### POST /api/enrich-context
+
+Enriquece el contexto de una empresa usando Apollo API y lo formatea para el agente.
+
+**Parámetros:**
+```json
+{
+  "websiteUrl": "string (requerido)"
+}
+```
+
+**Respuesta exitosa:**
+```json
+{
+  "status": "success",
+  "context": "Contexto formateado para el agente...",
+  "enriched_data": {
+    "informacion_basica": {...},
+    "financiera": {...},
+    "empleados_clave": [...],
+    "resumen_ejecutivo": "..."
+  }
+}
+```
+
+**Ejemplo de uso:**
+```bash
+curl -X POST http://localhost:5003/api/enrich-context \
+  -H "Content-Type: application/json" \
+  -d '{
+    "websiteUrl": "https://www.empresa.com"
+  }'
+```
+
+**Ejemplo de contexto generado:**
+```
+=== INFORMACIÓN DEL PROSPECTO ===
+Nombre: Juan Pérez
+Email: juan@empresa.com
+Rol: Gerente
+Empresa: Empresa S.A.
+
+=== INFORMACIÓN DE LA EMPRESA ===
+Empresa: Empresa S.A.
+Descripción: Empresa líder en tecnología
+Industria: Software
+Número de empleados: 50-100
+Año de fundación: 2020
+Sitio web: https://www.empresa.com
+
+=== INFORMACIÓN FINANCIERA ===
+Ingresos anuales: $1M-$5M
+Tecnologías: React, Node.js, AWS
+
+=== INSTRUCCIONES PARA EL AGENTE ===
+Usa esta información para personalizar la conversación...
 ```
 
 ## Integración con Tavus

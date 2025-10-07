@@ -337,3 +337,4 @@ def health_check():
 # Para Vercel
 def handler(request):
     return app(request)
+
