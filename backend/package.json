@@ -1,0 +1,12 @@
+{
+  "name": "tavus-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Tavus application",
+  "scripts": {
+    "build": "echo 'Python backend - no build step required'",
+    "start": "python app.py"
+  },
+  "engines": {
+    "python": "3.9"
+  }
+}
