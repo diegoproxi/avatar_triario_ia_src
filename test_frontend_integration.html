@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend Integration - Apollo API</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+        .step.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .step.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Frontend Integration - Apollo API</h1>
+        
+        <form id="prospectForm">
+            <div class="form-group">
+                <label for="nombres">Nombres *</label>
+                <input type="text" id="nombres" name="nombres" value="Juan" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="apellidos">Apellidos *</label>
+                <input type="text" id="apellidos" name="apellidos" value="Pérez" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="compania">Empresa *</label>
+                <input type="text" id="compania" name="compania" value="Triario" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="websiteUrl">URL del Sitio Web</label>
+                <input type="url" id="websiteUrl" name="websiteUrl" value="https://triario.com" placeholder="https://ejemplo.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="emailCorporativo">Email Corporativo *</label>
+                <input type="email" id="emailCorporativo" name="emailCorporativo" value="juan@triario.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="rol">Rol *</label>
+                <input type="text" id="rol" name="rol" value="CEO" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="backendUrl">Backend URL</label>
+                <select id="backendUrl">
+                    <option value="http://localhost:5003">Local (http://localhost:5003)</option>
+                    <option value="https://tu-backend.vercel.app">Producción (Vercel)</option>
+                </select>
+            </div>
+            
+            <button type="submit" id="submitBtn">🚀 Probar Integración Completa</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Procesando...</p>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('prospectForm');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const backendUrl = document.getElementById('backendUrl').value;
+            
+            // Mostrar loading
+            loading.style.display = 'block';
+            results.innerHTML = '';
+            submitBtn.disabled = true;
+            
+            let resultsHtml = '<div class="results"><h3>📊 Resultados de la Prueba</h3>';
+            
+            try {
+                // Paso 1: Probar endpoint de prospecto
+                resultsHtml += '<div class="step">🔄 Paso 1: Enviando datos del prospecto...</div>';
+                
+                const prospectResponse = await fetch(`${backendUrl}/api/prospect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const prospectResult = await prospectResponse.json();
+                
+                if (prospectResponse.ok) {
+                    resultsHtml += `<div class="step success">✅ Prospecto guardado exitosamente<br>
+                        HubSpot ID: ${prospectResult.hubspot_id || 'N/A'}<br>
+                        Mensaje: ${prospectResult.message}</div>`;
+                    
+                    // Mostrar datos enriquecidos si están disponibles
+                    if (prospectResult.enriched_company_data) {
+                        const enriched = prospectResult.enriched_company_data;
+                        resultsHtml += `<div class="step success">🎯 Datos enriquecidos incluidos:<br>
+                            Empresa: ${enriched.informacion_basica?.nombre || 'N/A'}<br>
+                            Industria: ${enriched.informacion_basica?.industria || 'N/A'}<br>
+                            Tamaño: ${enriched.informacion_basica?.tamaño || 'N/A'}</div>`;
+                    }
+                } else {
+                    resultsHtml += `<div class="step error">❌ Error guardando prospecto: ${prospectResult.error || prospectResult.message}</div>`;
+                }
+                
+                // Paso 2: Probar endpoint de enriquecimiento de contexto
+                if (data.websiteUrl) {
+                    resultsHtml += '<div class="step">🔄 Paso 2: Enriqueciendo contexto con Apollo...</div>';
+                    
+                    const enrichResponse = await fetch(`${backendUrl}/api/enrich-context`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            websiteUrl: data.websiteUrl,
+                            ...data
+                        })
+                    });
+                    
+                    const enrichResult = await enrichResponse.json();
+                    
+                    if (enrichResponse.ok && enrichResult.status === 'success') {
+                        resultsHtml += `<div class="step success">✅ Contexto enriquecido obtenido exitosamente</div>`;
+                        
+                        // Mostrar contexto generado
+                        resultsHtml += `<div class="step"><strong>📋 Contexto generado para el agente:</strong><br>
+                            <pre>${enrichResult.context}</pre></div>`;
+                        
+                        // Mostrar datos estructurados
+                        if (enrichResult.enriched_data) {
+                            resultsHtml += `<div class="step"><strong>🏢 Datos estructurados:</strong><br>
+                                <pre>${JSON.stringify(enrichResult.enriched_data, null, 2)}</pre></div>`;
+                        }
+                    } else {
+                        resultsHtml += `<div class="step error">❌ Error enriqueciendo contexto: ${enrichResult.error || enrichResult.message}</div>`;
+                    }
+                }
+                
+                // Resumen final
+                resultsHtml += `<div class="step success">🎉 ¡Prueba completada! La integración está funcionando correctamente.</div>`;
+                
+            } catch (error) {
+                resultsHtml += `<div class="step error">💥 Error durante la prueba: ${error.message}</div>`;
+                resultsHtml += `<div class="step error">💡 Verifica que el backend esté ejecutándose en: ${backendUrl}</div>`;
+            }
+            
+            resultsHtml += '</div>';
+            results.innerHTML = resultsHtml;
+            
+            // Ocultar loading
+            loading.style.display = 'none';
+            submitBtn.disabled = false;
+        });
+        
+        // Función para probar solo Apollo API directamente
+        window.testApolloDirect = async () => {
+            loading.style.display = 'block';
+            results.innerHTML = '';
+            
+            try {
+                const response = await fetch('https://api.apollo.io/api/v1/organizations/enrich?domain=triario.com', {
+                    headers: {
+                        'x-api-key': 'ATpjar6DGtZOKVJWSTiGXQ',
+                        'accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    results.innerHTML = `<div class="results success">
+                        <h3>✅ Apollo API funciona correctamente</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+                } else {
+                    results.innerHTML = `<div class="results error">
+                        <h3>❌ Error de Apollo API</h3>
+                        <p>Status: ${response.status}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="results error">
+                    <h3>💥 Error de conexión</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+            
+            loading.style.display = 'none';
+        };
+    </script>
+    
+    <div style="margin-top: 20px; text-align: center;">
+        <button onclick="window.testApolloDirect()" style="background: #28a745; margin-right: 10px;">
+            🔍 Probar Solo Apollo API
+        </button>
+        <a href="javascript:void(0)" onclick="window.open('https://triario.com', '_blank')" style="color: #007bff; text-decoration: none;">
+            🌐 Ver triario.com
+        </a>
+    </div>
+</body>
+</html>

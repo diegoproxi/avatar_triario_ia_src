@@ -3,6 +3,10 @@ import os
 import requests
 import logging
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 

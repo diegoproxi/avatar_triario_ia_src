@@ -5,11 +5,15 @@ import logging
 import resend
 import requests
 from datetime import datetime
+from dotenv import load_dotenv
 from api.apollo import enrich_company_data
 from api.hubspot import enrich_prospect_with_hubspot_data, get_contact_info, create_conversation_engagement
 from storage.conversation_storage import conversation_storage
 from agents.conversation_analyzer import conversation_analyzer
 from api.hubspot_fields import update_contact_pain_field, validate_pain_value
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 app = Flask(__name__)
 
