@@ -18,28 +18,27 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 # Posibles dolores de venta según HubSpot
 SALES_PAIN_OPTIONS = [
-    "No se en que invierte el tiempo mis vendedores",
-    "No tengo CRM o siento que no lo aprovecho lo suficiente", 
-    "El seguimiento a los prospectos y negocios es minimo",
-    "El equipo de ventas gasta mucho tiempo en actividades operativas",
-    "Mi nivel de recompra es muy bajo",
-    "Los negocios que generamos son muy pocos"
+    "No tengo CRM o siento que no lo aprovecho lo suficiente",
+    "Siento que no tengo visibilidad de mi pipeline de ventas",
+    "Me cuesta trabajo hacer seguimiento a mis prospectos",
+    "No tengo un proceso de ventas definido",
+    "No sé cómo calificar a mis prospectos",
+    "Me cuesta trabajo cerrar ventas",
+    "No tengo métricas claras de mi equipo de ventas",
+    "No sé cómo hacer prospecting efectivo",
+    "Me cuesta trabajo manejar objeciones",
+    "No tengo un sistema de seguimiento post-venta",
+    "otro"
 ]
 
 class ConversationAnalysis(BaseModel):
-    """Modelo para el análisis de la conversación"""
-    
-    summary: str = Field(description="Resumen ejecutivo de la conversación en máximo 200 palabras")
-    
-    pain_point: str = Field(description="Dolor principal identificado del cliente. Debe ser uno de los valores predefinidos")
-    
-    pain_confidence: float = Field(description="Nivel de confianza en la identificación del dolor (0.0 a 1.0)")
-    
-    key_insights: List[str] = Field(description="Lista de insights clave extraídos de la conversación")
-    
-    next_steps: str = Field(description="Próximos pasos recomendados basados en la conversación")
-    
+    """Modelo para el análisis de conversaciones"""
+    summary: str = Field(description="Resumen de la conversación")
+    pain_point: str = Field(description="Punto de dolor identificado del cliente")
+    pain_confidence: float = Field(description="Confianza en la identificación del dolor (0-1)")
     qualification_score: int = Field(description="Puntuación de calificación del prospecto (1-10)")
+    key_insights: List[str] = Field(description="Insights clave de la conversación")
+    next_steps: List[str] = Field(description="Próximos pasos recomendados")
 
 class ConversationAnalyzer:
     """Agente para analizar conversaciones y extraer información relevante"""
@@ -69,28 +68,26 @@ class ConversationAnalyzer:
         prompt_text = """
 Eres un experto analista de conversaciones de ventas. Tu tarea es analizar una transcripción de una conversación entre un SDR (Sales Development Representative) y un prospecto, y extraer información clave.
 
-INSTRUCCIONES:
-1. Analiza toda la transcripción proporcionada
-2. Identifica el dolor principal del cliente
-3. Crea un resumen ejecutivo
-4. Extrae insights clave
-5. Sugiere próximos pasos
-
-DOLORES DE VENTA VÁLIDOS:
-{sales_pain_options}
-
-FORMATO DE SALIDA:
-{format_instructions}
-
-TRANSCRIPCIÓN DE LA CONVERSACIÓN:
-{transcript}
-
-CONTEXTO ADICIONAL:
-- Empresa: {company}
-- Rol del prospecto: {role}
+Información del prospecto:
+- Nombre: {nombre}
+- Empresa: {empresa}
+- Rol: {rol}
 - Email: {email}
 
-Analiza la conversación y proporciona el análisis en el formato JSON solicitado.
+Transcripción de la conversación:
+{transcript}
+
+Instrucciones:
+1. Analiza la conversación y extrae el punto de dolor principal del prospecto
+2. Evalúa la calificación del prospecto (1-10) basándote en:
+   - Fit del producto/servicio
+   - Autoridad para tomar decisiones
+   - Urgencia de la necesidad
+   - Presupuesto disponible
+3. Identifica insights clave de la conversación
+4. Sugiere próximos pasos específicos
+
+{format_instructions}
 """
 
         return ChatPromptTemplate.from_template(prompt_text)
@@ -107,25 +104,23 @@ Analiza la conversación y proporciona el análisis en el formato JSON solicitad
             ConversationAnalysis: Análisis estructurado de la conversación
         """
         
+        if not self.llm:
+            logger.warning("LLM no disponible, retornando análisis simulado")
+            return self._get_simulated_analysis(prospect_data)
+        
         try:
-            # Si no hay API key, retornar análisis simulado
-            if not self.llm:
-                return self._simulate_analysis(transcript, prospect_data)
-            
             # Convertir transcript a texto
             transcript_text = self._format_transcript(transcript)
             
-            # Preparar el prompt
+            # Crear el prompt
             prompt = self.prompt_template.format(
-                sales_pain_options="\n".join([f"- {pain}" for pain in SALES_PAIN_OPTIONS]),
-                format_instructions=self.parser.get_format_instructions(),
+                nombre=prospect_data.get('nombre', 'No especificado'),
+                empresa=prospect_data.get('empresa', 'No especificada'),
+                rol=prospect_data.get('rol', 'No especificado'),
+                email=prospect_data.get('email', 'No especificado'),
                 transcript=transcript_text,
-                company=prospect_data.get('compania', 'N/A'),
-                role=prospect_data.get('rol', 'N/A'),
-                email=prospect_data.get('emailCorporativo', 'N/A')
+                format_instructions=self.parser.get_format_instructions()
             )
-            
-            logger.info("🤖 Iniciando análisis de conversación con LangChain")
             
             # Ejecutar el análisis
             response = self.llm.invoke(prompt)
@@ -133,98 +128,104 @@ Analiza la conversación y proporciona el análisis en el formato JSON solicitad
             # Parsear la respuesta
             analysis = self.parser.parse(response.content)
             
-            logger.info(f"✅ Análisis completado. Dolor identificado: {analysis.pain_point}")
-            
+            logger.info(f"Análisis completado para {prospect_data.get('nombre', 'prospecto')}")
             return analysis
             
         except Exception as e:
             logger.error(f"Error en análisis de conversación: {str(e)}")
-            return self._simulate_analysis(transcript, prospect_data)
+            return self._get_simulated_analysis(prospect_data)
     
     def _format_transcript(self, transcript: List[Dict]) -> str:
-        """Convierte la transcripción a formato de texto legible"""
+        """Formatea la transcripción para el análisis"""
         
-        formatted_messages = []
-        
-        for message in transcript:
-            role = message.get('role', 'unknown')
-            content = message.get('content', '')
+        formatted_lines = []
+        for msg in transcript:
+            role = msg.get('role', 'unknown')
+            content = msg.get('content', '')
             
             if role == 'user':
-                formatted_messages.append(f"PROSPECTO: {content}")
+                formatted_lines.append(f"SDR: {content}")
             elif role == 'assistant':
-                formatted_messages.append(f"AGENTE: {content}")
-            elif role == 'system' and 'tool_calls' in message:
-                # Manejar tool calls
-                tool_calls = message.get('tool_calls', [])
-                for tool_call in tool_calls:
-                    function_name = tool_call.get('function', {}).get('name', 'unknown')
-                    formatted_messages.append(f"AGENTE: [Ejecutó herramienta: {function_name}]")
+                formatted_lines.append(f"Prospecto: {content}")
+            else:
+                formatted_lines.append(f"{role.title()}: {content}")
         
-        return "\n".join(formatted_messages)
+        return "\n".join(formatted_lines)
     
-    def _simulate_analysis(self, transcript: List[Dict], prospect_data: Dict) -> ConversationAnalysis:
-        """Simula un análisis cuando no hay API key de OpenAI"""
-        
-        logger.info("🔄 Simulando análisis de conversación")
-        
-        # Análisis básico basado en palabras clave
-        transcript_text = self._format_transcript(transcript).lower()
-        
-        # Identificar dolor basado en palabras clave
-        pain_keywords = {
-            "No se en que invierte el tiempo mis vendedores": ["tiempo", "vendedores", "actividades", "productividad"],
-            "No tengo CRM o siento que no lo aprovecho lo suficiente": ["crm", "sistema", "herramientas", "tecnología"],
-            "El seguimiento a los prospectos y negocios es minimo": ["seguimiento", "prospectos", "negocios", "pipeline"],
-            "El equipo de ventas gasta mucho tiempo en actividades operativas": ["operativo", "tareas", "administrativo", "procesos"],
-            "Mi nivel de recompra es muy bajo": ["recompra", "retention", "fidelización", "clientes"],
-            "Los negocios que generamos son muy pocos": ["negocios", "ventas", "generación", "demanda"]
-        }
-        
-        identified_pain = "No tengo CRM o siento que no lo aprovecho lo suficiente"  # Default
-        max_score = 0
-        
-        for pain, keywords in pain_keywords.items():
-            score = sum(1 for keyword in keywords if keyword in transcript_text)
-            if score > max_score:
-                max_score = score
-                identified_pain = pain
+    def _get_simulated_analysis(self, prospect_data: Dict) -> ConversationAnalysis:
+        """Retorna un análisis simulado cuando no hay LLM disponible"""
         
         return ConversationAnalysis(
-            summary=f"Conversación con {prospect_data.get('nombres', '')} {prospect_data.get('apellidos', '')} de {prospect_data.get('compania', '')}. El prospecto manifestó interés en mejorar sus procesos de ventas y marketing. Se identificaron desafíos en la gestión de clientes y procesos comerciales.",
-            pain_point=identified_pain,
-            pain_confidence=0.7 if max_score > 0 else 0.3,
+            summary=f"Conversación con {prospect_data.get('nombre', 'prospecto')} de {prospect_data.get('empresa', 'empresa')}. Análisis simulado.",
+            pain_point="No tengo CRM o siento que no lo aprovecho lo suficiente",
+            pain_confidence=0.7,
+            qualification_score=6,
             key_insights=[
-                "Prospecto interesado en optimización de procesos",
-                "Empresa en etapa de crecimiento",
-                "Necesidad de mejor gestión de clientes"
+                "Prospecto interesado en mejorar procesos",
+                "Mencionó problemas con seguimiento de clientes"
             ],
-            next_steps="Agendar reunión de calificación con especialista comercial para evaluar necesidades específicas y presentar propuesta personalizada.",
-            qualification_score=7
+            next_steps=[
+                "Enviar información sobre el CRM",
+                "Programar demo personalizada",
+                "Seguimiento en una semana"
+            ]
         )
     
     def get_pain_mapping(self, pain_point: str) -> str:
         """
-        Mapea el dolor identificado al valor exacto de HubSpot
+        Mapea el punto de dolor identificado a las opciones de HubSpot
         
         Args:
-            pain_point: Dolor identificado por el análisis
+            pain_point: Punto de dolor identificado por la IA
             
         Returns:
-            str: Valor exacto para el campo de HubSpot
+            str: Punto de dolor mapeado a las opciones de HubSpot
         """
         
-        # Mapeo exacto de dolores
+        # Mapeo inteligente basado en palabras clave
         pain_mapping = {
-            "No se en que invierte el tiempo mis vendedores": "No se en que invierte el tiempo mis vendedores",
-            "No tengo CRM o siento que no lo aprovecho lo suficiente": "No tengo CRM o siento que no lo aprovecho lo suficiente",
-            "El seguimiento a los prospectos y negocios es minimo": "El seguimiento a los prospectos y negocios es minimo",
-            "El equipo de ventas gasta mucho tiempo en actividades operativas": "El equipo de ventas gasta mucho tiempo en actividades operativas",
-            "Mi nivel de recompra es muy bajo": "Mi nivel de recompra es muy bajo",
-            "Los negocios que generamos son muy pocos": "Los negocios que generamos son muy pocos"
+            "crm": "No tengo CRM o siento que no lo aprovecho lo suficiente",
+            "pipeline": "Siento que no tengo visibilidad de mi pipeline de ventas",
+            "seguimiento": "Me cuesta trabajo hacer seguimiento a mis prospectos",
+            "proceso": "No tengo un proceso de ventas definido",
+            "calificar": "No sé cómo calificar a mis prospectos",
+            "cerrar": "Me cuesta trabajo cerrar ventas",
+            "métricas": "No tengo métricas claras de mi equipo de ventas",
+            "prospecting": "No sé cómo hacer prospecting efectivo",
+            "objeciones": "Me cuesta trabajo manejar objeciones",
+            "post-venta": "No tengo un sistema de seguimiento post-venta"
         }
         
-        return pain_mapping.get(pain_point, "No tengo CRM o siento que no lo aprovecho lo suficiente")
+        # Buscar coincidencias
+        pain_lower = pain_point.lower()
+        for key, value in pain_mapping.items():
+            if key in pain_lower:
+                return value
+        
+        # Si no encuentra coincidencia exacta, buscar palabras clave
+        if any(word in pain_lower for word in ["crm", "sistema", "software"]):
+            return "No tengo CRM o siento que no lo aprovecho lo suficiente"
+        elif any(word in pain_lower for word in ["pipeline", "embudo", "proceso"]):
+            return "Siento que no tengo visibilidad de mi pipeline de ventas"
+        elif any(word in pain_lower for word in ["seguimiento", "contacto", "llamada"]):
+            return "Me cuesta trabajo hacer seguimiento a mis prospectos"
+        elif any(word in pain_lower for word in ["proceso", "metodología", "pasos"]):
+            return "No tengo un proceso de ventas definido"
+        elif any(word in pain_lower for word in ["calificar", "evaluar", "priorizar"]):
+            return "No sé cómo calificar a mis prospectos"
+        elif any(word in pain_lower for word in ["cerrar", "cierre", "negociación"]):
+            return "Me cuesta trabajo cerrar ventas"
+        elif any(word in pain_lower for word in ["métricas", "kpi", "indicadores"]):
+            return "No tengo métricas claras de mi equipo de ventas"
+        elif any(word in pain_lower for word in ["prospecting", "prospección", "leads"]):
+            return "No sé cómo hacer prospecting efectivo"
+        elif any(word in pain_lower for word in ["objeciones", "resistencia", "rechazo"]):
+            return "Me cuesta trabajo manejar objeciones"
+        elif any(word in pain_lower for word in ["post-venta", "soporte", "retention"]):
+            return "No tengo un sistema de seguimiento post-venta"
+        
+        # Si no encuentra ninguna coincidencia, usar "otro"
+        return "otro"
 
 # Instancia global del analizador
 conversation_analyzer = ConversationAnalyzer()
