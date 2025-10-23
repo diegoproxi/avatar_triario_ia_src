@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd my-tavus-app && npm install && npm run build",
+  "outputDirectory": "my-tavus-app/dist",
+  "framework": "vite",
+  "installCommand": "cd my-tavus-app && npm install",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
