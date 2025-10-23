@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-10-17T10:17:43.938377",
+  "configuration": {
+    "resend_api_key": true,
+    "from_email": true,
+    "resend_api_key_value": "re_84CPq7S...",
+    "from_email_value": "wayne@marketinggrader.co"
+  },
+  "test_cases_count": 4,
+  "successful_tests": 4,
+  "failed_tests": 0,
+  "results": [
+    {
+      "test_case": {
+        "name": "Email en español",
+        "arguments": {
+          "email": "test.espanol@ejemplo.com",
+          "language": "es"
+        }
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.espanol@ejemplo.com en idioma es"
+    },
+    {
+      "test_case": {
+        "name": "Email en inglés",
+        "arguments": {
+          "email": "test.english@example.com",
+          "language": "en"
+        }
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.english@example.com en idioma en"
+    },
+    {
+      "test_case": {
+        "name": "Email con idioma por defecto",
+        "arguments": {
+          "email": "test.default@ejemplo.com"
+        }
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.default@ejemplo.com en idioma es"
+    },
+    {
+      "test_case": {
+        "name": "Email con idioma inválido (fallback)",
+        "arguments": {
+          "email": "test.invalid@ejemplo.com",
+          "language": "invalid_language"
+        }
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.invalid@ejemplo.com en idioma invalid_language"
+    }
+  ]
+}

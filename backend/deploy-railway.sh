@@ -28,3 +28,6 @@ railway up
 
 echo "✅ Despliegue completado!"
 echo "🌐 Tu aplicación estará disponible en: https://tu-proyecto.railway.app"
+
+
+

@@ -58,68 +58,133 @@ def execute_tool(tool_name, arguments):
         return f"Tool '{tool_name}' no implementada"
 
 def schedule_meeting(arguments):
-    """Programa una reunión enviando un email con el link de HubSpot"""
+    """Programa una reunión enviando un email con el link de HubSpot según el idioma"""
     
     try:
         email = arguments.get('email')
+        language = arguments.get('language', 'es')  # Por defecto español
+        
         if not email:
             return "Error: No se proporcionó el email del usuario"
         
-        # Crear el mensaje de email
-        subject = "Programar Reunión - Triario"
+        # Seleccionar el enlace según el idioma
+        meeting_links = {
+            'en': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-',
+            'es': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-latam',
+            'english': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-',
+            'spanish': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-latam'
+        }
         
-        # Cuerpo del email en HTML
-        html_body = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #ff433f; text-align: center;">¡Hola!</h2>
-                
-                <p>Gracias por tu interés en programar una reunión con nosotros.</p>
-                
-                <p>Puedes agendar tu reunión haciendo clic en el siguiente enlace:</p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{HUBSPOT_MEETING_LINK}" 
-                       style="background-color: #ff433f; color: white; padding: 15px 30px; 
-                              text-decoration: none; border-radius: 5px; font-weight: bold;
-                              display: inline-block;">
-                        Programar Reunión
-                    </a>
+        # Obtener el enlace correcto
+        meeting_link = meeting_links.get(language, meeting_links['es'])  # Fallback a español
+        
+        logger.info(f"Programando reunión para {email} en idioma: {language}, usando enlace: {meeting_link}")
+        
+        # Crear el mensaje de email según el idioma
+        if language in ['en', 'english']:
+            # Email en inglés
+            subject = "Schedule Meeting - Triario"
+            
+            html_body = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #ff433f; text-align: center;">Hello!</h2>
+                    
+                    <p>Thank you for your interest in scheduling a meeting with us.</p>
+                    
+                    <p>You can schedule your meeting by clicking on the following link:</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{meeting_link}" 
+                           style="background-color: #ff433f; color: white; padding: 15px 30px; 
+                                  text-decoration: none; border-radius: 5px; font-weight: bold;
+                                  display: inline-block;">
+                            Schedule Meeting
+                        </a>
+                    </div>
+                    
+                    <p>Or copy and paste this link in your browser:</p>
+                    <p style="word-break: break-all; background-color: #f5f5f5; padding: 10px; 
+                              border-radius: 3px; font-family: monospace;">
+                        {meeting_link}
+                    </p>
+                    
+                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                    
+                    <p style="font-size: 12px; color: #666; text-align: center;">
+                        This email was sent automatically by Triario AI
+                    </p>
                 </div>
-                
-                <p>O copia y pega este enlace en tu navegador:</p>
-                <p style="word-break: break-all; background-color: #f5f5f5; padding: 10px; 
-                          border-radius: 3px; font-family: monospace;">
-                    {HUBSPOT_MEETING_LINK}
-                </p>
-                
-                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-                
-                <p style="font-size: 12px; color: #666; text-align: center;">
-                    Este email fue enviado automáticamente por Triario AI
-                </p>
-            </div>
-        </body>
-        </html>
-        """
-        
-        # Cuerpo del email en texto plano
-        text_body = f"""
-        ¡Hola!
-        
-        Gracias por tu interés en programar una reunión con nosotros.
-        
-        Puedes agendar tu reunión visitando el siguiente enlace:
-        {HUBSPOT_MEETING_LINK}
-        
-        Este email fue enviado automáticamente por Triario AI
-        """
+            </body>
+            </html>
+            """
+            
+            text_body = f"""
+            Hello!
+            
+            Thank you for your interest in scheduling a meeting with us.
+            
+            You can schedule your meeting by visiting the following link:
+            {meeting_link}
+            
+            This email was sent automatically by Triario AI
+            """
+            
+        else:
+            # Email en español (por defecto)
+            subject = "Programar Reunión - Triario"
+            
+            html_body = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #ff433f; text-align: center;">¡Hola!</h2>
+                    
+                    <p>Gracias por tu interés en programar una reunión con nosotros.</p>
+                    
+                    <p>Puedes agendar tu reunión haciendo clic en el siguiente enlace:</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{meeting_link}" 
+                           style="background-color: #ff433f; color: white; padding: 15px 30px; 
+                                  text-decoration: none; border-radius: 5px; font-weight: bold;
+                                  display: inline-block;">
+                            Programar Reunión
+                        </a>
+                    </div>
+                    
+                    <p>O copia y pega este enlace en tu navegador:</p>
+                    <p style="word-break: break-all; background-color: #f5f5f5; padding: 10px; 
+                              border-radius: 3px; font-family: monospace;">
+                        {meeting_link}
+                    </p>
+                    
+                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                    
+                    <p style="font-size: 12px; color: #666; text-align: center;">
+                        Este email fue enviado automáticamente por Triario AI
+                    </p>
+                </div>
+            </body>
+            </html>
+            """
+            
+            text_body = f"""
+            ¡Hola!
+            
+            Gracias por tu interés en programar una reunión con nosotros.
+            
+            Puedes agendar tu reunión visitando el siguiente enlace:
+            {meeting_link}
+            
+            Este email fue enviado automáticamente por Triario AI
+            """
         
         # Enviar el email
         send_email(email, subject, text_body, html_body)
         
-        return f"Email de programación de reunión enviado exitosamente a {email}"
+        return f"Email de programación de reunión enviado exitosamente a {email} en idioma {language}"
     
     except Exception as e:
         logger.error(f"Error enviando email: {str(e)}")

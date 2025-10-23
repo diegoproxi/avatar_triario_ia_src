@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-10-16T18:35:45.937683",
+  "total_tests": 5,
+  "successful_tests": 0,
+  "failed_tests": 5,
+  "error_tests": 0,
+  "results": [
+    {
+      "test": "Email en español (por defecto)",
+      "status": "failed",
+      "result": "Error enviando email: You can only send testing emails to your own email address (diegoalejandro19@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.",
+      "arguments": {
+        "email": "test.espanol@ejemplo.com"
+      }
+    },
+    {
+      "test": "Email en español (explícito)",
+      "status": "failed",
+      "result": "Error enviando email: You can only send testing emails to your own email address (diegoalejandro19@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.",
+      "arguments": {
+        "email": "test.espanol.explicito@ejemplo.com",
+        "language": "es"
+      }
+    },
+    {
+      "test": "Email en inglés",
+      "status": "failed",
+      "result": "Error enviando email: You can only send testing emails to your own email address (diegoalejandro19@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.",
+      "arguments": {
+        "email": "test.english@example.com",
+        "language": "en"
+      }
+    },
+    {
+      "test": "Email en inglés (nombre completo)",
+      "status": "failed",
+      "result": "Error enviando email: You can only send testing emails to your own email address (diegoalejandro19@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.",
+      "arguments": {
+        "email": "test.english.full@example.com",
+        "language": "english"
+      }
+    },
+    {
+      "test": "Email con idioma inválido (fallback a español)",
+      "status": "failed",
+      "result": "Error enviando email: Too many requests. You can only make 2 requests per second. See rate limit response headers for more information. Or contact support to increase rate limit.",
+      "arguments": {
+        "email": "test.invalid@ejemplo.com",
+        "language": "invalid_language"
+      }
+    }
+  ]
+}

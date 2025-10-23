@@ -1,0 +1,91 @@
+{
+  "timestamp": "2025-10-16T18:56:44.871604",
+  "configuration": {
+    "resend_api_key": true,
+    "from_email": true,
+    "resend_api_key_value": "re_84CPq7S...",
+    "from_email_value": "diegoalejandro19@gmail.com"
+  },
+  "test_cases_count": 6,
+  "successful_tests": 6,
+  "failed_tests": 0,
+  "results": [
+    {
+      "test_case": {
+        "name": "Email en español",
+        "arguments": {
+          "email": "test.espanol@ejemplo.com",
+          "language": "es"
+        },
+        "expected_language": "es",
+        "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-latam"
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.espanol@ejemplo.com en idioma es"
+    },
+    {
+      "test_case": {
+        "name": "Email en inglés",
+        "arguments": {
+          "email": "test.english@example.com",
+          "language": "en"
+        },
+        "expected_language": "en",
+        "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-"
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.english@example.com en idioma en"
+    },
+    {
+      "test_case": {
+        "name": "Email con idioma por defecto",
+        "arguments": {
+          "email": "test.default@ejemplo.com"
+        },
+        "expected_language": "es",
+        "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-latam"
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.default@ejemplo.com en idioma es"
+    },
+    {
+      "test_case": {
+        "name": "Email con idioma inválido (fallback)",
+        "arguments": {
+          "email": "test.invalid@ejemplo.com",
+          "language": "invalid_language"
+        },
+        "expected_language": "es",
+        "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-latam"
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.invalid@ejemplo.com en idioma invalid_language"
+    },
+    {
+      "test_case": {
+        "name": "Email en inglés (nombre completo)",
+        "arguments": {
+          "email": "test.english.full@example.com",
+          "language": "english"
+        },
+        "expected_language": "english",
+        "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-"
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.english.full@example.com en idioma english"
+    },
+    {
+      "test_case": {
+        "name": "Email en español (nombre completo)",
+        "arguments": {
+          "email": "test.spanish.full@ejemplo.com",
+          "language": "spanish"
+        },
+        "expected_language": "spanish",
+        "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-latam"
+      },
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.spanish.full@ejemplo.com en idioma spanish"
+    }
+  ]
+}

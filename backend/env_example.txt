@@ -1,0 +1,20 @@
+# Configuración de Resend para envío de emails
+RESEND_API_KEY=tu-api-key-de-resend-aqui
+FROM_EMAIL=tu-email@tu-dominio.com
+
+# URL del backend (opcional, por defecto localhost:5003)
+BACKEND_URL=http://localhost:5003
+
+# Email para pruebas (opcional)
+TEST_EMAIL=tu-email-personal@gmail.com
+
+# Configuración de Flask
+FLASK_ENV=development
+PORT=5003
+
+# Configuración de HubSpot (si se usa)
+HUBSPOT_API_KEY=tu-hubspot-api-key
+HUBSPOT_PORTAL_ID=tu-hubspot-portal-id
+
+# Otras configuraciones
+DEBUG=True

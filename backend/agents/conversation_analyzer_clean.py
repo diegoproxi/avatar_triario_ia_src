@@ -114,3 +114,6 @@ Analiza la conversación y proporciona el análisis en el formato JSON solicitad
 
 # Instancia global del analizador
 conversation_analyzer = ConversationAnalyzer()
+
+
+

@@ -1,0 +1,80 @@
+{
+  "timestamp": "2025-10-16T18:37:09.748522",
+  "test_type": "simulation",
+  "total_tests": 6,
+  "successful_tests": 6,
+  "failed_tests": 0,
+  "error_tests": 0,
+  "results": [
+    {
+      "test": "Email en español (por defecto)",
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.espanol@ejemplo.com en idioma es",
+      "arguments": {
+        "email": "test.espanol@ejemplo.com"
+      },
+      "expected_language": "es",
+      "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-latam",
+      "expected_subject": "Programar Reunión - Triario"
+    },
+    {
+      "test": "Email en español (explícito)",
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.espanol.explicito@ejemplo.com en idioma es",
+      "arguments": {
+        "email": "test.espanol.explicito@ejemplo.com",
+        "language": "es"
+      },
+      "expected_language": "es",
+      "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-latam",
+      "expected_subject": "Programar Reunión - Triario"
+    },
+    {
+      "test": "Email en inglés",
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.english@example.com en idioma en",
+      "arguments": {
+        "email": "test.english@example.com",
+        "language": "en"
+      },
+      "expected_language": "en",
+      "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-",
+      "expected_subject": "Schedule Meeting - Triario"
+    },
+    {
+      "test": "Email en inglés (nombre completo)",
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.english.full@example.com en idioma english",
+      "arguments": {
+        "email": "test.english.full@example.com",
+        "language": "english"
+      },
+      "expected_language": "english",
+      "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-",
+      "expected_subject": "Schedule Meeting - Triario"
+    },
+    {
+      "test": "Email con idioma inválido (fallback a español)",
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.invalid@ejemplo.com en idioma invalid_language",
+      "arguments": {
+        "email": "test.invalid@ejemplo.com",
+        "language": "invalid_language"
+      },
+      "expected_language": "es",
+      "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-latam",
+      "expected_subject": "Programar Reunión - Triario"
+    },
+    {
+      "test": "Email sin parámetro de idioma (fallback a español)",
+      "status": "success",
+      "result": "Email de programación de reunión enviado exitosamente a test.no.language@ejemplo.com en idioma es",
+      "arguments": {
+        "email": "test.no.language@ejemplo.com"
+      },
+      "expected_language": "es",
+      "expected_link": "https://meetings.hubspot.com/joshdomagala/inbound-leads-latam",
+      "expected_subject": "Programar Reunión - Triario"
+    }
+  ]
+}

@@ -59,9 +59,14 @@
 ### 3. Tool Calls Implementadas
 
 #### schedule_meeting
-- **Parámetros**: `email` (string)
-- **Función**: Envía email con enlace de reunión de HubSpot
-- **Email**: Incluye botón de acción y enlace de respaldo
+- **Parámetros**: 
+  - `email` (string): Email del usuario al que enviar el enlace
+  - `language` (string, opcional): Idioma para seleccionar el enlace correcto ('es' para español, 'en' para inglés)
+- **Función**: Envía email con enlace de reunión de HubSpot según el idioma
+- **Enlaces**:
+  - Español: `https://meetings.hubspot.com/joshdomagala/inbound-leads-latam`
+  - Inglés: `https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-`
+- **Email**: Incluye contenido en el idioma correspondiente, botón de acción y enlace de respaldo
 
 ## Flujo de Datos
 
@@ -84,7 +89,8 @@
     "function": {
       "name": "schedule_meeting",
       "arguments": {
-        "email": "usuario@ejemplo.com"
+        "email": "usuario@ejemplo.com",
+        "language": "es"
       }
     }
   }
@@ -95,9 +101,18 @@
 ```python
 def schedule_meeting(arguments):
     email = arguments.get('email')
-    # Enviar email con enlace de HubSpot
+    language = arguments.get('language', 'es')  # Por defecto español
+    
+    # Seleccionar enlace según idioma
+    meeting_links = {
+        'en': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-',
+        'es': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-latam'
+    }
+    meeting_link = meeting_links.get(language, meeting_links['es'])
+    
+    # Enviar email con enlace correcto según idioma
     send_email(email, subject, text_body, html_body)
-    return f"Email enviado a {email}"
+    return f"Email enviado a {email} en idioma {language}"
 ```
 
 ### 4. Respuesta al Webhook

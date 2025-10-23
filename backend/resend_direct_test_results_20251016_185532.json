@@ -1,0 +1,61 @@
+{
+  "timestamp": "2025-10-16T18:55:32.720552",
+  "configuration": {
+    "resend_api_key": true,
+    "from_email": true,
+    "resend_api_key_value": "re_84CPq7S...",
+    "from_email_value": "diegoalejandro19@gmail.com"
+  },
+  "function_test_cases_count": 4,
+  "successful_function_tests": 0,
+  "failed_function_tests": 4,
+  "direct_resend_test": {
+    "success": false,
+    "error": "The gmail.com domain is not verified. Please, add and verify your domain on https://resend.com/domains"
+  },
+  "function_results": [
+    {
+      "test_case": {
+        "name": "Email en español",
+        "arguments": {
+          "email": "test.espanol@ejemplo.com",
+          "language": "es"
+        }
+      },
+      "status": "failed",
+      "result": "Error enviando email: The gmail.com domain is not verified. Please, add and verify your domain on https://resend.com/domains"
+    },
+    {
+      "test_case": {
+        "name": "Email en inglés",
+        "arguments": {
+          "email": "test.english@example.com",
+          "language": "en"
+        }
+      },
+      "status": "failed",
+      "result": "Error enviando email: The gmail.com domain is not verified. Please, add and verify your domain on https://resend.com/domains"
+    },
+    {
+      "test_case": {
+        "name": "Email con idioma por defecto",
+        "arguments": {
+          "email": "test.default@ejemplo.com"
+        }
+      },
+      "status": "failed",
+      "result": "Error enviando email: Too many requests. You can only make 2 requests per second. See rate limit response headers for more information. Or contact support to increase rate limit."
+    },
+    {
+      "test_case": {
+        "name": "Email con idioma inválido (fallback)",
+        "arguments": {
+          "email": "test.invalid@ejemplo.com",
+          "language": "invalid_language"
+        }
+      },
+      "status": "failed",
+      "result": "Error enviando email: The gmail.com domain is not verified. Please, add and verify your domain on https://resend.com/domains"
+    }
+  ]
+}
