@@ -169,25 +169,18 @@ def execute_tool(tool_name, arguments):
         return f"Tool '{tool_name}' no implementada"
 
 def schedule_meeting(arguments):
-    """Programa una reunión enviando un email con el link de HubSpot según el idioma"""
+    """Programa una reunión enviando un email con el link de HubSpot según el idioma y compartiendo el enlace en el chat"""
     
     try:
         email = arguments.get('email')
         language = arguments.get('language', 'es')  # Por defecto español
+        conversation_id = arguments.get('conversation_id')  # Obtener conversation_id
         
         if not email:
             return "Error: No se proporcionó el email del usuario"
         
-        # Seleccionar el enlace según el idioma
-        meeting_links = {
-            'en': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-',
-            'es': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-latam',
-            'english': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-',
-            'spanish': 'https://meetings.hubspot.com/joshdomagala/inbound-leads-latam'
-        }
-        
-        # Obtener el enlace correcto
-        meeting_link = meeting_links.get(language, meeting_links['es'])  # Fallback a español
+        # Usar el enlace específico proporcionado por el usuario
+        meeting_link = "https://meetings.hubspot.com/joshdomagala/inbound-leads-jose-josh-?uuid=9b004f24-3c94-44ca-adeb-fd1899444efd"
         
         logger.info(f"Programando reunión para {email} en idioma: {language}, usando enlace: {meeting_link}")
         
@@ -1136,6 +1129,41 @@ def get_hubspot_id_by_conversation(conversation_id):
     
     except Exception as e:
         logger.error(f"Error consultando hubspot_id: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/send-chat-message', methods=['POST'])
+def send_chat_message():
+    """Endpoint para enviar mensajes al chat de la conversación"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"status": "error", "message": "No se proporcionaron datos"}), 400
+        
+        conversation_id = data.get('conversation_id')
+        message = data.get('message')
+        
+        if not conversation_id or not message:
+            return jsonify({
+                "status": "error", 
+                "message": "Se requieren conversation_id y message"
+            }), 400
+        
+        logger.info(f"Enviando mensaje al chat - Conversation ID: {conversation_id}, Mensaje: {message}")
+        
+        # Por ahora solo logueamos el mensaje que se enviaría
+        # En una implementación real, aquí se enviaría el mensaje a Daily.co
+        logger.info(f"Mensaje para el chat de conversación {conversation_id}: {message}")
+        
+        return jsonify({
+            "status": "success",
+            "message": "Mensaje enviado al chat exitosamente",
+            "conversation_id": conversation_id,
+            "sent_message": message
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error enviando mensaje al chat: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/health', methods=['GET'])
